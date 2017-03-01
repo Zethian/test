@@ -28,67 +28,32 @@ SOFTWARE.
 
 /* Includes */
 #include "stm32f4xx.h"
+#include "init.h"
+#include "functions.h"
 
 /* Private macro */
 /* Private variables */
+volatile unsigned int thermistor;
+volatile unsigned int brightness;
 /* Private function prototypes */
 /* Private functions */
-void initPORT(void){
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN;
-}
-void initUART(void){
-	// ENABLE UART receiver
-	//RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //enable LED2 output and USART pins
-	GPIOC->MODER |= GPIO_MODER_MODER6_1|GPIO_MODER_MODER7_1;
-
-	  __disable_irq();
-	  RCC->APB2ENR |= RCC_APB2ENR_USART6EN; //activate USART6 clock
-	  GPIOC->AFR[0] |= (7<<27) |(7<<31);
-
-	  USART6->CR1 |= USART_CR1_UE; //Enable UART
-	  USART6->CR1 &= ~USART_CR1_M; //set 8bit
-	  USART6->CR2 &= ~USART_CR2_STOP; //set 1 stopbit
-	  USART6->BRR = (162<<4)|(12<<0); //set 19200bps baud rate
-	  USART6->CR1 |= USART_CR1_RE; //enable receiver
-	  USART6->CR1 |= USART_CR1_RXNEIE; //enable receiver interrupt
-
-	// ENABLE UART transmitter
-	  USART6->CR1 |= USART_CR1_TE;
 
 
-	  NVIC_SetPriority(USART6_IRQn,1);
-	  NVIC_EnableIRQ(USART6_IRQn);
-	  __enable_irq();
-}
-void initBUTTONS(void){
-	__disable_irq();
-	GPIOC->MODER &= ~GPIO_MODER_MODER10;
-	GPIOA->MODER &= ~GPIO_MODER_MODER15;
-	SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI10_PC;
-	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR4_EXTI15_PA;
 
-	NVIC_SetPriority(EXTI3_IRQn, 3);
-	NVIC_EnableIRQ(EXTI3_IRQn);
-	NVIC_SetPriority(EXTI4_IRQn, 3);
-	NVIC_EnableIRQ(EXTI4_IRQn);
-	__enable_irq();
-}
-void initLED(void){
-	GPIOC->MODER &= ~GPIO_MODER_MODER11;
-	GPIOC->MODER &= ~GPIO_MODER_MODER12;
-}
-void transmit(char output[]){
-	for(int i=0;output[i]!='\0';i++){
-		USART6->DR = output[i];
-		while(!(USART6->SR & USART_SR_TXE)){;}
-	}
 
-}
-void startup(void){
-	GPIOC->ODR |= GPIO_ODR_ODR_11;
 
-	GPIOC->ODR |= GPIO_ODR_ODR_12;
-}
+
+/* TODO
+ * IR reciever transmission
+ * MIC_CLK, MIC_D
+ * USB
+ * SWDIO
+ * SWCLOCK
+ * write logic tree on recieved data N/A
+ * set Ax as ADC
+ *
+ */
+
 
 /**
 **===========================================================================
@@ -99,28 +64,9 @@ void startup(void){
 */
 int main(void)
 {
-	initPORT();
-	initUART();
-	initBUTTONS();
-
-	startup();
-
-  /**
-  *  IMPORTANT NOTE!
-  *  The symbol VECT_TAB_SRAM needs to be defined when building the project
-  *  if code has been located to RAM and interrupts are used. 
-  *  Otherwise the interrupt table located in flash will be used.
-  *  See also the <system_*.c> file and how the SystemInit() function updates 
-  *  SCB->VTOR register.  
-  *  E.g.  SCB->VTOR = 0x20000000;  
-  */
-
-  /* TODO - Add your application code here */
-
+	initAll();
   /* Infinite loop */
-  while (1)
-  {
-  }
+  while (1) {;}
 }
 
 void EXTI3_IRQHandler(void){
@@ -132,18 +78,22 @@ void EXTI4_IRQHandler(void){
 
 }
 
-void USART2_IRQHandler(void){
+void USART6_IRQHandler(void){
 	char copy;
 	while((USART2->SR & USART_SR_RXNE)==0){;} // wait until readable
 		copy=USART2->DR & USART_DR_DR; //move data register to copy
-		strncat(received,&copy,1); // add copy to received
+		//strncat(received,&copy,1); // add copy to received
 		if(copy=='\n'){ //if final character read, set flag
-		newchar=1;
+		//newchar=1;
 		}
 		/*while(!(USART2->SR & USART_SR_TXE)){;}
 		USART2->DR =received;*/
 	/*if(USART2->SR & USART_SR_TXE){
 		USART2->DR = *received;
 	}*/
+
+}
+void ADC_IRQHandler(void){
+	thermistor=ADC1->DR & ADC_DR_DATA;
 
 }
