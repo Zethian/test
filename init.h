@@ -66,6 +66,8 @@ void initADC(void);
  * Output:	None
  **********************************************/
 void startup(void);
+void initTimer(void);
+void initPWM(void);
 
 
 #endif /* INIT_H_ */

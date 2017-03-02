@@ -30,6 +30,7 @@ SOFTWARE.
 #include "stm32f4xx.h"
 #include "init.h"
 #include "functions.h"
+#include "interrupts.h"
 
 /* Private macro */
 /* Private variables */
@@ -49,8 +50,6 @@ volatile unsigned int brightness;
  * USB
  * SWDIO
  * SWCLOCK
- * write logic tree on recieved data N/A
- * set Ax as ADC
  *
  */
 
@@ -69,31 +68,3 @@ int main(void)
   while (1) {;}
 }
 
-void EXTI3_IRQHandler(void){
-	transmit("jasper");
-
-}
-void EXTI4_IRQHandler(void){
-	transmit("jasper");
-
-}
-
-void USART6_IRQHandler(void){
-	char copy;
-	while((USART2->SR & USART_SR_RXNE)==0){;} // wait until readable
-		copy=USART2->DR & USART_DR_DR; //move data register to copy
-		//strncat(received,&copy,1); // add copy to received
-		if(copy=='\n'){ //if final character read, set flag
-		//newchar=1;
-		}
-		/*while(!(USART2->SR & USART_SR_TXE)){;}
-		USART2->DR =received;*/
-	/*if(USART2->SR & USART_SR_TXE){
-		USART2->DR = *received;
-	}*/
-
-}
-void ADC_IRQHandler(void){
-	thermistor=ADC1->DR & ADC_DR_DATA;
-
-}
