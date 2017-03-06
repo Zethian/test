@@ -18,7 +18,7 @@
  * Output:	None
  *
  **********************************************/
-void transmit(char output[]);
+extern void transmit(char output[]);
 
 /*
  * int tempCalc(int thermValue)
@@ -26,7 +26,7 @@ void transmit(char output[]);
  * Input: Thermistor ADC value
  * Output: Temperature in C
  */
-int tempCalc(int thermValue);
+extern int tempCalc(int thermValue);
 
 /*
  * int lightCalc(int lSenseVal)
@@ -35,7 +35,7 @@ int tempCalc(int thermValue);
  * Output: Light in X (lumen?)
  */
 
-int lightCalc(int lSenseVal);
+extern int lightCalc(int lSenseVal);
 
-
+extern void transmitIR(void);
 #endif /* FUNCTIONS_H_ */

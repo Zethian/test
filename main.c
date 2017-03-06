@@ -30,7 +30,6 @@ SOFTWARE.
 #include "stm32f4xx.h"
 #include "init.h"
 #include "functions.h"
-#include "interrupts.h"
 
 /* Private macro */
 /* Private variables */

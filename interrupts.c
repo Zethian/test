@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "interrupts.h"
 #include "functions.h"
 
 volatile int temp;
@@ -26,7 +25,7 @@ void EXTI3_IRQHandler(void){
 void EXTI4_IRQHandler(void){
 	ADC1->SQR3 &= (ADC_SQR3_SQ1 & 0b0000);
 	ADC1->CR2 |= ADC_CR2_SWSTART;
-	while((ADC1->SR & ADC_SR_EOC)!=1){;}
+	while((ADC1->SR & ADC_SR_EOC)==0){;}
 	temp=tempCalc((ADC1->DR & ADC_DR_DATA));
 	transmit("jasper");
 
@@ -54,8 +53,11 @@ void USART6_IRQHandler(void){
 void TIM2_IRQHandler(void){
 	ADC1->SQR3 = ADC_SQR3_SQ1_0;
 	ADC1->CR2 |= ADC_CR2_SWSTART;
-	while((ADC1->SR & ADC_SR_EOC)!=1){;}
-	bright=lightCalc((ADC1->DR & ADC_DR_DATA));
+	while((ADC1->SR & ADC_SR_EOC)==0){;}
+	bright=(ADC1->DR & ADC_DR_DATA);
+	bright=lightCalc(bright);
+	/*GPIOC->ODR ^= GPIO_ODR_ODR_12;*/ //testing
+	TIM2->SR &=~(1<<1);
 }
 
 void TIM5_IRQHandler(void){

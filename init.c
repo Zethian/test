@@ -14,13 +14,16 @@
 #include <ctype.h>
 
 void initAll(void){
+	__disable_irq();
 	initPORT();
 	initUART();
 	initBUTTONS();
 	initLED();
 	initADC();
+	initPWM();
 	initTimer();
 	startup();
+	__enable_irq();
 
 }
 void initPORT(void){
@@ -31,8 +34,6 @@ void initUART(void){
 	// ENABLE UART receiver
 	//RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //enable LED2 output and USART pins
 	GPIOC->MODER |= GPIO_MODER_MODER6_1|GPIO_MODER_MODER7_1;
-
-	  __disable_irq();
 	  RCC->APB2ENR |= RCC_APB2ENR_USART6EN; //activate USART6 clock
 	  GPIOC->AFR[0] |= (7<<27) |(7<<31);
 
@@ -49,30 +50,27 @@ void initUART(void){
 
 	  NVIC_SetPriority(USART6_IRQn,1);
 	  NVIC_EnableIRQ(USART6_IRQn);
-	  __enable_irq();
 }
 
 void initBUTTONS(void){
-	__disable_irq();
 	GPIOC->MODER &= ~GPIO_MODER_MODER10;
 	GPIOA->MODER &= ~GPIO_MODER_MODER15;
 	SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI10_PC;
 	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR4_EXTI15_PA;
 
-	NVIC_SetPriority(EXTI3_IRQn, 3);
+	NVIC_SetPriority(EXTI3_IRQn, 6);
 	NVIC_EnableIRQ(EXTI3_IRQn);
-	NVIC_SetPriority(EXTI4_IRQn, 3);
+	NVIC_SetPriority(EXTI4_IRQn, 6);
 	NVIC_EnableIRQ(EXTI4_IRQn);
-	__enable_irq();
 }
 
 void initLED(void){
-	GPIOC->MODER &= ~GPIO_MODER_MODER11;
-	GPIOC->MODER &= ~GPIO_MODER_MODER12;
+	GPIOC->MODER |= GPIO_MODER_MODER11_0;
+	GPIOC->MODER |= GPIO_MODER_MODER12_0;
 }
 
 void initADC(void){
-	__disable_irq();
+	/* måste sätta pins till analog? */
 	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN; // enable ADC clock
 	ADC1->CR1 &= (~ADC_CR1_RES); // 12-bit mode
 	ADC1->CR1 |= ADC_CR1_EOCIE; // enable end-of-conversion interrupt
@@ -83,40 +81,37 @@ void initADC(void){
 	ADC1->SQR1 &=(~ADC_SQR1_L); // only one conversion should happen
 	NVIC_SetPriority(ADC_IRQn, 2);
 	NVIC_EnableIRQ(ADC_IRQn);
-	__enable_irq();
 
 }
 
 void initTimer(void){
-	  __disable_irq();
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-	TIM2->DIER |= (1<<1); //enables interrupt
-	TIM2->CCMR1 |=(1<<3); //preload register to protect inbetween interrupts
-	TIM2->PSC = 59999; //59999+1 = 0.6ms =
+	TIM2->DIER |= TIM_DIER_CC1IE; //enables interrupt
+	TIM2->CCMR1 |=TIM_CCMR1_OC1PE; //preload register to protect inbetween interrupts
+	TIM2->PSC = 59999; //59999+1 = 0.6ms
 	TIM2->CNT = 1; //counter start value
 	TIM2->ARR = 100000; //reload value
 	TIM2->CCR1 = 0; //10000
-	TIM2->CR1 |= (1<<0)|(1<<4); //sets as downcounting and enables clock
+	TIM2->CR1 |= TIM_CR1_CEN|TIM_CR1_DIR; //sets as downcounting and enables clock
 
 	NVIC_SetPriority(TIM2_IRQn, 3);
 	NVIC_EnableIRQ( TIM2_IRQn);
-	__enable_irq();
 }
 
 void initPWM(void){
-	  __disable_irq();
 	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
 	TIM5->DIER |= TIM_DIER_CC1IE; //enables interrupt
-	TIM5->CCMR1 |=TIM_CCMR1_OC1PE; //preload register to protect inbetween interrupts
 	TIM5->CCMR1 |= TIM_CCMR1_OC1M_1|TIM_CCMR1_OC1M_2; // set to PWM mode 1
+	TIM5->CCMR1 |=TIM_CCMR1_OC1PE; //preload register
+	TIM5->CR1 |= TIM_CR1_ARPE; //auto-reload preload register
+	TIM5->EGR |= TIM_EGR_UG;
 	TIM5->PSC = 9999; //59999+1 = 0.6ms =
 	TIM5->CNT = 1; //counter start value
 	TIM5->ARR = 10000; //reload value
 	TIM5->CCR1 = 1000; //10000
-	TIM5->CR1 |= (1<<0)|(1<<4); //sets as downcounting and enables clock
+	TIM5->CR1 |= TIM_CR1_CEN|TIM_CR1_DIR; //sets as downcounting and enables clock
 	NVIC_SetPriority(TIM5_IRQn, 5);
 	NVIC_EnableIRQ( TIM5_IRQn);
-	__enable_irq();
 }
 
 void startup(void){

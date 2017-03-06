@@ -22,11 +22,14 @@ void transmit(char output[]){
 }
 
 int tempCalc(int thermValue){
-	int temp=0;//calculate exact temperature depeding on thermistor function
-	return temp;
+	int temp=1;//calculate exact temperature depeding on thermistor function
+	return thermValue;
 }
 
 int lightCalc(int lSenseVal){
-	int light=0;//calculate exact light setting depending on light sensor function
-	return light;
+	int light=1;//calculate exact light setting depending on light sensor function
+	return lSenseVal;
+}
+void transmitIR(void){
+	//something something Send IR
 }
