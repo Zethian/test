@@ -190,8 +190,6 @@ void SystemInit(void)
   RCC->CIR = 0x00000000;
 
   /* clock setup here */
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; // turns on Port C
-  GPIOC->MODER |= (1<<19); // sets PC9 as alternate function
 
   RCC->APB1ENR |= RCC_APB1ENR_PWREN;//enable clock
   PWR->CR |=PWR_CR_VOS; //sets PSU to <=100MHz

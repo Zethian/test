@@ -27,6 +27,7 @@ int tempCalc(int thermValue){
 }
 
 int lightCalc(int lSenseVal){
+	//range 0-4096, 4096 is highest
 	int light=1;//calculate exact light setting depending on light sensor function
 	return lSenseVal;
 }
