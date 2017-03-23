@@ -26,7 +26,7 @@ extern void transmit(char output[]);
  * Input: Thermistor ADC value
  * Output: Temperature in C
  */
-extern int tempCalc(int thermValue);
+extern int tempCalc();
 
 /*
  * int lightCalc(int lSenseVal)
@@ -36,6 +36,5 @@ extern int tempCalc(int thermValue);
  */
 
 extern int lightCalc(int lSenseVal);
-
 extern void transmitIR(void);
 #endif /* FUNCTIONS_H_ */

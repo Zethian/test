@@ -68,6 +68,7 @@ void initADC(void);
 void startup(void);
 void initTimer(void);
 void initPWM(void);
+void initIR(void);
 
 
 #endif /* INIT_H_ */
