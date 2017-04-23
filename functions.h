@@ -28,7 +28,7 @@ void SetSteering(float angle);
 void SetSpeed(float mps);
 
 /*
- * getSpeed();
+ * getSpeed()
  * Calculates the current speed of the car using measured frequency and radius
  * Input: N/A
  * Output: N/A
@@ -38,8 +38,16 @@ float getSpeed();
 /*
  * fetchFreq()
  * Gets the average of the last 3 frequency measurements
- * Input: sensorNo, chosing one of the equipped sensors
+ * Input: N/A
  * Output: Frequency
  */
 
-int fetchFreq(int sensorNo);
+float fetchFreq();
+
+/*
+ * getFault()
+ * Calculates the fault distance from the line sensors
+ * Input: N/A
+ * Output: Distance
+ */
+float getFault();

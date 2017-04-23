@@ -1,6 +1,7 @@
 #include <Servo.h>
 #include <Math.h>
 #include <PID_v1.h>
+#include "interrupts.h"
 
 #define radius 0.032 
 #define pi 3.1415
@@ -8,18 +9,11 @@
 Servo motor;
 Servo wheels;
 
-volatile unsigned int duration1=0;
-volatile unsigned long previousMicros1=0;
-volatile unsigned long duration2=0;
-volatile unsigned long previousMicros2=0;
-volatile unsigned int pointer1=0;
-volatile unsigned long pointer2=0;
-volatile int prevpoint1=0;
-volatile int prevpoint2=0;
+volatile unsigned int duration=0;
+volatile unsigned long previousMicros=0;
 
-volatile float Freq1[1000];
-volatile float Freq2[1000];
 volatile long Freq=0;
+volatile float fault=0;
 
 void functionSetup(){
   Serial.begin(19200);
@@ -61,25 +55,26 @@ void SetSpeed(float mps){ //must be above 8% if it has had speed earlier, otherw
 }
 
 float fetchFreq(){
-  int pointer1_=pointer1;
-      //Freq=1/((3*(micros()-previousMicros1)/10e6));
-      Freq = 1e6/(3*(duration1));
-      if((micros()-previousMicros1)>=1000000){
-        Freq=1e6/(3*(micros()-previousMicros1));
+      Freq = 1e6/(3*(duration));
+      if((micros()-previousMicros)>=1000000){
+        Freq=1e6/(3*(micros()-previousMicros));
       }
-      //Serial.println(Freq);
       return Freq;
-    //}
 }
 
 float getSpeed(){
-  float museconds;
-  float circ; // in m
   float velocity;
-  int pointer1_=pointer1;
-  // museconds=fetchFreq(); //switch which sensor and how many magnets
-  // circ=2*pi*radius;
-  // velocity=circ/(museconds);
   velocity = fetchFreq()*radius*2*pi;
   return velocity;
 }
+
+float getFault(){
+  if(line1+line2+line3+line4+line5+line6+line7 == 0){
+    return fault;
+  }
+  else{
+   fault=((-7.8*line1)+(-5.2*line2)+(-2.6*line3)+(0*line4)+(2.6*line5)+(5.2*line6)+(7.8*line7))/(line1+line2+line3+line4+line5+line6+line7);
+   return fault;
+  }
+}
+
