@@ -1,1 +1,0 @@
-# Design-av-inbyggda-system
