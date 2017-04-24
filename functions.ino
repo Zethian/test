@@ -72,7 +72,7 @@ float getFault(){// get the cm from the center.
   if(line1+line2+line3+line4+line5+line6+line7 == 0){//if 0 then return the last value
     return fault;
   }
-  else{//calculate the value of the fault dived it by number of sensors that is reading the line and return the value
+  else{//calculate the value of the fault divide it by the number of sensors that is reading the line and return the value
    fault=((-7.8*line1)+(-5.2*line2)+(-2.6*line3)+(0*line4)+(2.6*line5)+(5.2*line6)+(7.8*line7))/(line1+line2+line3+line4+line5+line6+line7);
    return fault;
   }
